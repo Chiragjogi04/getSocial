@@ -74,11 +74,16 @@ cd getSocial
 pip install -r requirements.txt
 ```
 
-▶️ Running the App
+## ▶️ Running the App
 ### Launch the application
+
+```bash
 python app.py
+```
 OR
+```bash
 python3 getSocial.py
+```
 
 ### Finally open your browser and go to:
-👉 http://localhost:5000
+👉 http://localhost:5000 and getSocial....
