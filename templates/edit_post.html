@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Edit Post{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <h2>Edit Post</h2>
+  <form method="POST">
+    <div class="mb-3">
+      <textarea name="caption" class="form-control" rows="4">{{ post.caption }}</textarea>
+    </div>
+    <button class="btn btn-primary">Update</button>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Search Results | getSocial{% endblock %}
+
+{% block content %}
+<div class="container text-white">
+  <h2 class="mb-4">Search Results for "{{ query }}"</h2>
+
+  {% if users %}
+    <div class="row">
+      {% for user in users %}
+      <div class="col-md-4 mb-4">
+        <div class="card bg-dark text-white border-0 shadow-sm text-center p-3">
+          <img src="{{ url_for('static', filename='images/profile_pics/' + user.profile_pic) }}"
+               alt="{{ user.username }}'s profile picture"
+               class="rounded-circle mb-2"
+               width="100" height="100"
+               style="object-fit: cover;">
+          <h5>{{ user.username }}</h5>
+          <a href="{{ url_for('profile', username=user.username) }}" class="btn btn-outline-info btn-sm">
+            View Profile
+          </a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="text-muted">No users found for "{{ query }}".</p>
+  {% endif %}
+</div>
+{% endblock %}

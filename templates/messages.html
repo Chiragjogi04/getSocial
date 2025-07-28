@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Chat with {{ user.username }} | getSocial{% endblock %}
+
+{% block content %}
+<div class="container text-white">
+  <h3 class="mb-4">
+    Chat with {{ user.username }}
+    <span id="online-status" class="ms-2">🔴 Offline</span>
+  </h3>
+
+  <div class="card bg-dark text-white mb-4 p-3" id="chat-box" style="max-height: 500px; overflow-y: auto;">
+    {% if messages %}
+      {% for msg in messages %}
+        <div class="mb-3 {% if msg.sender_id == current_user.id %}text-end{% endif %}">
+          <div class="d-inline-flex align-items-center {% if msg.sender_id == current_user.id %}flex-row-reverse{% endif %}">
+            <img src="{{ url_for('static', filename='images/profile_pics/' ~ msg.sender.profile_pic) }}"
+                 class="rounded-circle me-2 {% if msg.sender_id == current_user.id %}ms-2 me-0{% endif %}"
+                 width="40" height="40" alt="{{ msg.sender.username }}">
+            <div class="bg-secondary rounded p-2">
+              <strong>{{ msg.sender.username }}</strong><br>
+              <span>{{ msg.body }}</span><br>
+              <small class="text-muted">{{ msg.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p class="text-muted">No messages yet.</p>
+    {% endif %}
+
+    <!-- ✅ Typing indicator -->
+    <div id="typing-indicator" class="text-muted fst-italic mt-2"></div>
+  </div>
+
+  <form id="chat-form" class="d-flex">
+    <input type="text" id="message-input" class="form-control me-2" placeholder="Type a message..." required autocomplete="off">
+    <button type="submit" class="btn btn-outline-primary">Send</button>
+  </form>
+</div>
+
+<!-- ✅ Socket.IO Client -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.min.js"></script>
+<script>
+  const socket = io();
+  const room = "{{ room }}";
+  const recipient = {{ user.username|tojson }};
+  const partnerId = {{ user.id|tojson }};
+
+  socket.emit('join', { room: room });
+
+  const chatForm = document.getElementById('chat-form');
+  const input = document.getElementById('message-input');
+  const chatBox = document.getElementById('chat-box');
+  const typingIndicator = document.getElementById('typing-indicator');
+  const onlineStatus = document.getElementById('online-status');
+
+  // ✅ Send message
+  chatForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const message = input.value.trim();
+    if (message) {
+      socket.emit('send_message', {
+        room: room,
+        recipient: recipient,
+        body: message
+      });
+      input.value = '';
+    }
+  });
+
+  // ✅ Receive new message
+  socket.on('receive_message', data => {
+    const div = document.createElement('div');
+    const align = data.sender === "{{ current_user.username }}" ? 'text-end' : '';
+    const flex = data.sender === "{{ current_user.username }}" ? 'flex-row-reverse' : '';
+
+    div.className = `mb-3 ${align}`;
+    div.innerHTML = `
+      <div class="d-inline-flex align-items-center ${flex}">
+        <img src="${data.sender_pic}"
+             class="rounded-circle me-2 ${flex ? 'ms-2 me-0' : ''}"
+             width="40" height="40" alt="${data.sender}">
+        <div class="bg-secondary rounded p-2">
+          <strong>${data.sender}</strong><br>
+          <span>${data.body}</span><br>
+          <small class="text-muted">${data.timestamp}</small>
+        </div>
+      </div>
+    `;
+    chatBox.appendChild(div);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  });
+
+  // ✅ Typing
+  let typing = false;
+  let timeout;
+
+  input.addEventListener('input', () => {
+    if (!typing) {
+      typing = true;
+      socket.emit('typing', { room: room });
+    }
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      typing = false;
+      socket.emit('stop_typing', { room: room });
+    }, 1200);
+  });
+
+  socket.on('typing', data => {
+    typingIndicator.innerText = `${data.username} is typing...`;
+  });
+
+  socket.on('stop_typing', data => {
+    typingIndicator.innerText = '';
+  });
+
+  // ✅ Online status
+  socket.on('user_online', data => {
+    if (data.user_id === partnerId) {
+      onlineStatus.innerText = '🟢 Online';
+    }
+  });
+
+  socket.on('user_offline', data => {
+    if (data.user_id === partnerId) {
+      onlineStatus.innerText = '🔴 Offline';
+    }
+  });
+</script>
+{% endblock %}

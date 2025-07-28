@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Sign Up | getSocial{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center min-vh-100">
+  <div class="col-md-8 d-none d-md-block text-center">
+    <img src="{{ url_for('static', filename='images/getSocial-removebg-preview.png') }}" alt="getSocial" class="img-fluid rounded mockup-img">
+  </div>
+  <div class="col-md-4">
+    <div class="card p-4 shadow animate__animated animate__fadeIn">
+      <h2 class="text-center mb-4 fw-bold">getSocial</h2>
+      <form method="POST">
+        <div class="mb-3">
+          <input type="text" name="username" class="form-control form-control-lg" placeholder="Username" required>
+        </div>
+        <div class="mb-3">
+          <input type="email" name="email" class="form-control form-control-lg" placeholder="Email" required>
+        </div>
+        <div class="mb-3">
+          <input type="password" name="password" class="form-control form-control-lg" placeholder="Password" required>
+        </div>
+        <div class="mb-3">
+          <input type="password" name="confirm_password" class="form-control form-control-lg" placeholder="Confirm Password" required>
+        </div>
+        <button type="submit" class="btn btn-primary w-100 btn-lg">Sign up</button>
+      </form>
+      <div class="text-center mt-3">
+        <small>Already have an account? <a href="{{ url_for('login') }}">Log in</a></small>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+
+{% block title %}{{ user.username }} | getSocial{% endblock %}
+
+{% block content %}
+<div class="container text-white">
+  <div class="row align-items-center">
+    <!-- ✅ Profile Pic Column -->
+    <div class="col-md-3 text-center">
+      <div class="profile-pic-container mb-2">
+        <img src="{{ url_for('static', filename='images/profile_pics/' + user.profile_pic) }}"
+             alt="{{ user.username }}'s profile picture"
+             class="profile-pic img-thumbnail">
+      </div>
+
+      {% if current_user.username == user.username %}
+      <button id="settingsBtn" class="settings-btn">
+        ⚙️ Settings
+      </button>
+
+      <!-- ✅ Hidden Edit Section -->
+      <div id="editSection" class="mt-3" style="display:none;">
+        <form action="{{ url_for('edit_profile') }}" method="POST" enctype="multipart/form-data">
+          <label class="form-label">Update Bio:</label>
+          <textarea class="form-control mb-2" name="bio" rows="2" placeholder="Update your bio">{{ user.bio }}</textarea>
+
+          <label class="form-label">Change Profile Picture:</label>
+          <input class="form-control mb-2" type="file" name="profile_pic" accept="image/*">
+
+          <button type="submit" class="btn btn-primary btn-sm">Save Changes</button>
+        </form>
+
+        <!-- ✅ Delete Account Section -->
+        <hr class="my-3">
+        <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal">
+          🗑️ Delete Account
+        </button>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- ✅ User Info -->
+    <div class="col-md-9">
+      <h2 class="fw-bold">{{ user.username }}</h2>
+      <p>{{ user.bio or "No bio yet..." }}</p>
+
+      {% if current_user.username != user.username %}
+        {% if current_user.is_following(user) %}
+          <a href="{{ url_for('unfollow', username=user.username) }}" class="btn btn-outline-danger btn-sm">Unfollow</a>
+        {% else %}
+          <a href="{{ url_for('follow', username=user.username) }}" class="btn btn-outline-primary btn-sm">Follow</a>
+        {% endif %}
+        <a href="{{ url_for('messages', username=user.username) }}" class="btn btn-outline-light btn-sm">Message</a>
+      {% endif %}
+
+      <p class="mt-2">
+        <strong>{{ posts|length }}</strong> Posts &nbsp; | &nbsp;
+
+        <a href="#" class="text-decoration-none text-white" data-bs-toggle="modal" data-bs-target="#followersModal">
+          <strong>{{ user.followers.count() }}</strong> Followers
+        </a>
+
+        &nbsp; | &nbsp;
+
+        <a href="#" class="text-decoration-none text-white" data-bs-toggle="modal" data-bs-target="#followingModal">
+          <strong>{{ user.followed.count() }}</strong> Following
+        </a>
+      </p>
+    </div>
+  </div>
+
+  <hr class="border-light my-4">
+
+  <!-- ✅ Posts Grid -->
+  <h4 class="fw-bold mb-3">Posts</h4>
+  <div class="row">
+    {% for post in posts %}
+    <div class="col-6 col-md-4 mb-4">
+      <div class="card bg-dark border-0">
+        {% if post.media_type == 'image' %}
+          <img src="{{ url_for('static', filename='images/uploads/' + post.media_file) }}"
+               class="card-img-top rounded"
+               alt="Post image">
+        {% elif post.media_type == 'video' %}
+          <video controls class="card-img-top rounded">
+            <source src="{{ url_for('static', filename='videos/uploads/' + post.media_file) }}" type="video/mp4">
+            Your browser does not support the video tag.
+          </video>
+        {% endif %}
+
+        <div class="card-body p-2">
+          <p class="card-text">{{ post.caption | linkify | safe }}</p>
+        </div>
+
+        {% if post.author == current_user %}
+        <div class="d-flex justify-content-between p-2">
+          <a href="{{ url_for('edit_post', post_id=post.id) }}" class="btn btn-sm btn-outline-warning">Edit</a>
+          <form action="{{ url_for('delete_post', post_id=post.id) }}" method="POST" style="display:inline;">
+            <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+          </form>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    {% else %}
+    <p class="text-muted">No posts yet.</p>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- ✅ Followers Modal -->
+<div class="modal fade" id="followersModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content bg-dark text-white">
+      <div class="modal-header">
+        <h5 class="modal-title">Followers</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="followers-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ✅ Following Modal -->
+<div class="modal fade" id="followingModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content bg-dark text-white">
+      <div class="modal-header">
+        <h5 class="modal-title">Following</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="following-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ✅ Delete Account Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content bg-dark text-white">
+      <div class="modal-header">
+        <h5 class="modal-title">Confirm Account Deletion</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete your account? This action is <strong>permanent</strong> and cannot be undone.
+      </div>
+      <div class="modal-footer">
+        <form action="{{ url_for('delete_account') }}" method="POST">
+          <button type="submit" class="btn btn-danger">Yes, Delete</button>
+        </form>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.getElementById('settingsBtn')?.addEventListener('click', function () {
+    var section = document.getElementById('editSection');
+    section.style.display = section.style.display === 'none' ? 'block' : 'none';
+  });
+
+  let followersPage = 1;
+  let followingPage = 1;
+
+  function loadFollowers() {
+    fetch(`/api/{{ user.username }}/followers?page=${followersPage}`)
+      .then(res => res.json())
+      .then(data => {
+        data.forEach(u => {
+          document.getElementById('followers-list').innerHTML += `
+            <a href="/profile/${u.username}" class="text-white text-decoration-none">
+              <div class="d-flex align-items-center mb-2">
+                <img src="/static/images/profile_pics/${u.profile_pic}" class="rounded-circle me-2" width="40" height="40">
+                ${u.username}
+              </div>
+            </a>`;
+        });
+      });
+  }
+
+  function loadFollowing() {
+    fetch(`/api/{{ user.username }}/following?page=${followingPage}`)
+      .then(res => res.json())
+      .then(data => {
+        data.forEach(u => {
+          document.getElementById('following-list').innerHTML += `
+            <a href="/profile/${u.username}" class="text-white text-decoration-none">
+              <div class="d-flex align-items-center mb-2">
+                <img src="/static/images/profile_pics/${u.profile_pic}" class="rounded-circle me-2" width="40" height="40">
+                ${u.username}
+              </div>
+            </a>`;
+        });
+      });
+  }
+
+  document.getElementById('followersModal').addEventListener('shown.bs.modal', function () {
+    document.getElementById('followers-list').innerHTML = "";
+    followersPage = 1;
+    loadFollowers();
+  });
+
+  document.getElementById('followingModal').addEventListener('shown.bs.modal', function () {
+    document.getElementById('following-list').innerHTML = "";
+    followingPage = 1;
+    loadFollowing();
+  });
+
+  document.getElementById('followersModal').querySelector('.modal-body').addEventListener('scroll', function () {
+    if (this.scrollTop + this.clientHeight >= this.scrollHeight) {
+      followersPage++;
+      loadFollowers();
+    }
+  });
+
+  document.getElementById('followingModal').querySelector('.modal-body').addEventListener('scroll', function () {
+    if (this.scrollTop + this.clientHeight >= this.scrollHeight) {
+      followingPage++;
+      loadFollowing();
+    }
+  });
+</script>
+{% endblock %}

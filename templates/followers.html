@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}{{ type }} | getSocial{% endblock %}
+
+{% block content %}
+<div class="container text-white">
+  <h3 class="mb-4">{{ type }} of {{ user.username }}</h3>
+
+  {% if users %}
+    <ul class="list-group list-group-flush">
+      {% for u in users %}
+        <li class="list-group-item bg-transparent text-white d-flex align-items-center">
+          <img src="{{ url_for('static', filename='images/profile_pics/' + u.profile_pic) }}"
+               alt="{{ u.username }}'s profile pic"
+               class="rounded-circle me-3" width="50" height="50">
+          <a href="#" class="text-decoration-none text-white" data-bs-toggle="modal" data-bs-target="#followersModal">
+            <strong>{{ user.followers.count() }}</strong> Followers
+        </a>
+        &nbsp; | &nbsp;
+        <a href="#" class="text-decoration-none text-white" data-bs-toggle="modal" data-bs-target="#followingModal">
+            <strong>{{ user.followed.count() }}</strong> Following
+        </a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="text-muted">No {{ type.lower() }} yet.</p>
+  {% endif %}
+
+</div>
+{% endblock %}
