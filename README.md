@@ -6,7 +6,6 @@ It offers real-time messaging, media posting, likes, comments, notifications, ha
 ![Python](https://img.shields.io/badge/Python-3.8+-blue?logo=python)
 ![Flask](https://img.shields.io/badge/Flask-%20%20v2.x%20-black?logo=flask)
 ![SocketIO](https://img.shields.io/badge/Realtime-Flask--SocketIO-red?logo=websocket)
-![License](https://img.shields.io/badge/License-MIT-green.svg)
 
 ---
 
