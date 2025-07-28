@@ -68,13 +68,14 @@ git clone https://github.com/Chiragjogi04/getSocial.git
 cd getSocial
 ```
 
-# Install dependencies
+### Install dependencies
 pip install -r requirements.txt
-✅ Make sure you're using Python 3.8+
+
 ▶️ Running the App
-# Launch the application
+### Launch the application
 python app.py
 # OR
 python3 getSocial.py
-Then open your browser and go to:
+
+### Finally open your browser and go to:
 👉 http://localhost:5000
