@@ -49,9 +49,9 @@ It offers real-time messaging, media posting, likes, comments, notifications, ha
 ## 🛠️ Tech Stack
 
 | Layer         | Technology                                   |
-|---------------|-----------------------------------------------|
+|---------------|----------------------------------------------|
 | **Backend**   | Python, Flask, SQLAlchemy, Flask-Login       |
-| **Database**  | SQLite (development-ready)                   |
+| **Database**  | SQLite                                       |
 | **Realtime**  | Flask-SocketIO (Eventlet)                    |
 | **Frontend**  | HTML, CSS, Jinja2 (templating)               |
 | **Media**     | Support for image/video uploads              |
@@ -66,10 +66,7 @@ It offers real-time messaging, media posting, likes, comments, notifications, ha
 # Clone the repository
 git clone https://github.com/yourusername/getSocial.git
 cd getSocial
-
-# (Optional) Create a virtual environment
-python -m venv venv
-source venv/bin/activate         # Windows: venv\Scripts\activate
+'''
 
 # Install dependencies
 pip install -r requirements.txt
