@@ -64,9 +64,9 @@ It offers real-time messaging, media posting, likes, comments, notifications, ha
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/getSocial.git
+git clone https://github.com/Chiragjogi04/getSocial.git
 cd getSocial
-'''
+```
 
 # Install dependencies
 pip install -r requirements.txt
