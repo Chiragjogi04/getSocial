@@ -69,12 +69,15 @@ cd getSocial
 ```
 
 ### Install dependencies
+
+```bash
 pip install -r requirements.txt
+```
 
 ▶️ Running the App
 ### Launch the application
 python app.py
-# OR
+OR
 python3 getSocial.py
 
 ### Finally open your browser and go to:
