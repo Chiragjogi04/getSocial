@@ -18,14 +18,15 @@ app.config['UPLOAD_FOLDER'] = 'static/images/uploads'
 app.config['PROFILE_PIC_FOLDER'] = 'static/images/profile_pics'
 
 db = SQLAlchemy(app)
-with app.app_context():
-    db.create_all()
 socketio = SocketIO(app)
 online_users = set()
 
 # === Login Manager ===
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
+
+with app.app_context():
+    db.create_all()
 
 # === Followers Table ===
 followers = db.Table(
