@@ -7,3 +7,4 @@ eventlet>=0.33.3
 Werkzeug>=2.2.3
 Jinja2>=3.1.2
 gunicorn
+psycopg2-binary
